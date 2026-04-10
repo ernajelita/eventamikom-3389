@@ -2,6 +2,28 @@
 
 use Illuminate\Support\Facades\Route;
 
+Route::get('/tentang', function () {
+    return '<h1>Ini adalah Halaman Tentang Aplikasi Event Hub</h1>';
+});
+
+Route::get('/kontak', function () {
+    return view('contact');
+});
+
+// Tiga route tambahan sesuai permintaan
+Route::get('/profil', function () {
+    return view('profil');
+});
+
+Route::get('/katalog', function () {
+    return view('katalog');
+});
+
+Route::get('/bantuan', function () {
+    return view('bantuan');
+});
+
+// Route home untuk memudahkan navigasi
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 });
