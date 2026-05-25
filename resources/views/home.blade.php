@@ -30,6 +30,46 @@
     </div>
 </div>
 
+{{-- ========== KATEGORI ========== --}}
+@if(isset($categories) && $categories->count() > 0)
+<div class="mb-16">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Jelajahi Kategori</h2>
+    <div class="flex flex-wrap justify-center gap-3">
+        @foreach($categories as $category)
+        <a href="{{ url('/katalog?category=' . $category->slug) }}" 
+           class="px-5 py-2 bg-indigo-100 text-indigo-700 rounded-full text-sm font-semibold hover:bg-indigo-200 transition">
+            {{ $category->name }}
+        </a>
+        @endforeach
+    </div>
+</div>
+@endif
+
+{{-- ========== PARTNER ========== --}}
+@if(isset($partners) && $partners->count() > 0)
+<div class="bg-gray-50 rounded-2xl p-8 mb-16">
+    <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">Partner & Kolaborator</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        @foreach($partners as $partner)
+        <div class="bg-white rounded-xl shadow-md p-4 flex flex-col items-center justify-center hover:shadow-lg transition">
+            @if($partner->logo_path)
+                <img src="{{ asset('storage/' . $partner->logo_path) }}" alt="{{ $partner->name }}" class="h-12 w-auto object-contain mb-2">
+            @else
+                <div class="h-12 w-12 bg-indigo-100 rounded-full flex items-center justify-center mb-2">
+                    <span class="text-indigo-600 font-bold text-xl">{{ strtoupper(substr($partner->name, 0, 1)) }}</span>
+                </div>
+            @endif
+            <p class="text-sm font-semibold text-gray-700 text-center">{{ $partner->name }}</p>
+            @if($partner->type)
+                <span class="text-xs text-gray-500 mt-1">{{ $partner->type }}</span>
+            @endif
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
+{{-- Tombol Bergabung --}}
 <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-8 text-center">
     <h2 class="text-3xl font-bold text-gray-800 mb-4">✨ Bergabung Sekarang Juga!</h2>
     <p class="text-gray-600 mb-6">Jadilah bagian dari komunitas event terbesar di Amikom</p>
@@ -37,4 +77,11 @@
         Lihat Katalog Event →
     </a>
 </div>
+
+{{-- Tampilkan platform AmikomEventHub jika belum ada di daftar partner --}}
+@if(isset($partners) && !$partners->contains('name', 'AmikomEventHub'))
+<div class="mt-8 text-center text-sm text-gray-500">
+    <p>Platform resmi: <span class="font-semibold text-indigo-600">AmikomEventHub</span></p>
+</div>
+@endif
 @endsection

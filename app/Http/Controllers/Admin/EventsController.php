@@ -1,18 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class EventController extends Controller
+class EventsController extends Controller
 {
-    public function show()
+    public function index()
     {
-        return view ('event-detail');
-    }
-
-    public function checkout()
-    {
-        return view ('checkout');
+        return view('admin.events');
     }
 }

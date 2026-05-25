@@ -108,4 +108,4 @@
 </div>
 
 </body>
-</html>
+</html><?php /**PATH C:\laragon\www\eventamikom-3389\resources\views/profil.blade.php ENDPATH**/ ?>
