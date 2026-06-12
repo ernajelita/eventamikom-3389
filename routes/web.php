@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\Admin\PartnerController; // ✅ Perbaiki: hapus ::class
+use App\Http\Controllers\Admin\AuthController;
 
 /*
  |--------------------------------------------------------------------------
@@ -49,25 +50,30 @@ Route::get('/bantuan', function () {
 |--------------------------------------------------------------------------
 */
 
+Route::get('/login', function () {
+    return redirect()->route('admin.login');
+})->name('login');
+
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     
-    // Dashboard Admin
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Rute Login bebas akses
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Kelola Events
-    Route::resource('events', EventAdminController::class);
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('events', EventAdminController::class);
+        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
 
-    // Kelola Categories (manual, belum resource)
-    Route::get('/categories', [CategoriesController::class, 'index'])->name('categories');
-    Route::get('/categories/create', [CategoriesController::class, 'create'])->name('categories.create');
-    Route::post('/categories', [CategoriesController::class, 'store'])->name('categories.store');
-    Route::get('/categories/{category}/edit', [CategoriesController::class, 'edit'])->name('categories.edit');
-    Route::put('/categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
-    Route::delete('/categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
+        Route::get('categories', [CategoriesController::class, 'index'])->name('categories');
+        Route::get('categories/create', [CategoriesController::class, 'create'])->name('categories.create');
+        Route::post('categories', [CategoriesController::class, 'store'])->name('categories.store');
+        Route::get('categories/{category}/edit', [CategoriesController::class, 'edit'])->name('categories.edit');
+        Route::put('categories/{category}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::delete('categories/{category}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
 
-    // Kelola Partners (CRUD lengkap)
-    Route::resource('partners', PartnerController::class); // ✅ Tambahkan route resource untuk partner
+        Route::resource('partners', PartnerController::class);
+    });
 
-// Transaksi
-        Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions');
 });

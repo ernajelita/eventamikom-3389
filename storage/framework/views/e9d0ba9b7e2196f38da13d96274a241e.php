@@ -26,19 +26,25 @@
                 </tr>
             </thead>
             <tbody class="divide-y border-t">
-                <?php $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <?php $__empty_1 = true; $__currentLoopData = $events; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $index => $event): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                 <tr class="hover:bg-slate-50/50 transition">
-                    <td class="px-8 py-6 font-bold text-slate-400"><?php echo e($index + 1); ?></td>
+                    <td class="px-8 py-6 font-bold text-slate-400"><?php echo e($events->firstItem() + $index); ?></td>
                     <td class="px-8 py-6">
+                        <?php if($event->poster_path): ?>
                         <img src="<?php echo e(asset('storage/'.$event->poster_path)); ?>" class="w-16 h-20 rounded-xl object-cover shadow-sm">
+                        <?php else: ?>
+                        <div class="w-16 h-20 rounded-xl bg-slate-200 flex items-center justify-center">
+                            <span class="text-slate-400 text-xs">No Poster</span>
+                        </div>
+                        <?php endif; ?>
                     </td>
                     <td class="px-8 py-6">
                         <p class="font-black text-slate-800"><?php echo e($event->title); ?></p>
-                        <p class="text-xs text-slate-400"><?php echo e($event->category->name); ?> • <?php echo e(\Carbon\Carbon::parse($event->date)->format('d M Y')); ?></p>
+                        <p class="text-xs text-slate-400"><?php echo e($event->category->name ?? 'Tanpa Kategori'); ?> • <?php echo e(\Carbon\Carbon::parse($event->date)->format('d M Y')); ?></p>
                     </td>
                     <td class="px-8 py-6">
-                        <p class="font-bold text-indigo-600">Rp <?php echo e(number_format($event->price, 0, ',', '.')); ?></p>
-                        <p class="text-xs text-slate-400">Stok: <?php echo e($event->stock); ?></p>
+                        <p class="font-bold text-indigo-600">Rp <?php echo e(number_format($event->price ?? 0, 0, ',', '.')); ?></p>
+                        <p class="text-xs text-slate-400">Stok: <?php echo e($event->stock ?? 0); ?></p>
                     </td>
                     <td class="px-8 py-6 flex gap-2">
                         <a href="<?php echo e(route('admin.events.edit', $event->id)); ?>" class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition">
@@ -52,10 +58,28 @@
                         </form>
                     </td>
                 </tr>
-                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                <tr>
+                    <td colspan="5" class="px-8 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center gap-3">
+                            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z" /></svg>
+                            </div>
+                            <p class="text-slate-500 font-medium">Belum ada event yang ditambahkan.</p>
+                            <a href="<?php echo e(route('admin.events.create')); ?>" class="mt-2 inline-flex items-center gap-1 px-4 py-2 text-sm bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">+ Tambah Event Pertama</a>
+                        </div>
+                    </td>
+                </tr>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
+    <?php if($events->hasPages()): ?>
+    <div class="px-8 py-6 bg-slate-50/50 border-t">
+        <?php echo e($events->links()); ?>
+
+    </div>
+    <?php endif; ?>
 </div>
 <?php $__env->stopSection(); ?>
 
