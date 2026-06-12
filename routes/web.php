@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\CheckoutController;
 
 // Import Controller Admin
 use App\Http\Controllers\Admin\DashboardController;
@@ -25,6 +26,9 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 Route::get('/app', [HomeController::class, 'index']);
 Route::get('/event-detail', [EventController::class, 'show']);
 Route::get('/checkout', [EventController::class, 'checkout']);
+Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
+Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/success/{transaction}', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/ticket', [TicketController::class, 'show']);
 
 // Halaman Informasi Statis
@@ -65,6 +69,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('events', EventAdminController::class);
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+        Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
         Route::get('categories', [CategoriesController::class, 'index'])->name('categories');
         Route::get('categories/create', [CategoriesController::class, 'create'])->name('categories.create');

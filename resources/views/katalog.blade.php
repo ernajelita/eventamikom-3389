@@ -1,208 +1,96 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Event - Event Platform</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Background hologram kalem */
-        body {
-            background: linear-gradient(135deg, 
-                rgba(230, 240, 255, 0.7), 
-                rgba(240, 230, 255, 0.7), 
-                rgba(230, 255, 240, 0.7), 
-                rgba(255, 240, 230, 0.7));
-            background-size: 300% 300%;
-            animation: hologramMove 14s ease infinite;
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
+@extends('layouts.app')
 
-        @keyframes hologramMove {
-            0% { background-position: 0% 0%; }
-            25% { background-position: 100% 0%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
-            100% { background-position: 0% 0%; }
-        }
+@section('title', 'Katalog Event')
 
-        /* Efek card hover */
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Efek kilau halus pada card */
-        .card-shine {
-            position: relative;
-            overflow: hidden;
-        }
-        .card-shine::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 80%);
-            opacity: 0;
-            transition: opacity 0.5s ease;
-            pointer-events: none;
-            transform: rotate(25deg);
-        }
-        .card-shine:hover::after {
-            opacity: 0.6;
-            animation: shine 0.8s ease;
-        }
-        @keyframes shine {
-            0% { transform: translateX(-30%) translateY(-30%) rotate(25deg); }
-            100% { transform: translateX(30%) translateY(30%) rotate(25deg); }
-        }
-    </style>
-</head>
-<body>
-
-<div class="max-w-7xl mx-auto">
-    <!-- Header halaman -->
+@section('content')
+<div class="max-w-7xl mx-auto px-6 py-12">
     <div class="text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">📚 Katalog Event AmikomEventHub</h1>
-        <p class="text-xl text-gray-600">Temukan berbagai event menarik yang akan datang dan raih kesempatan emas!</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">Katalog Event</h1>
+        <p class="text-xl text-slate-500 max-w-2xl mx-auto">Temukan dan beli tiket event-event menarik di Amikom</p>
     </div>
 
-    <!-- Grid event -->
+    @if(isset($categories) && $categories->count() > 0)
+    <div class="mb-10">
+        <h2 class="text-lg font-bold text-slate-700 mb-4">Filter Kategori</h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url('/katalog') }}" class="px-5 py-2 bg-indigo-600 text-white rounded-full text-sm font-bold hover:bg-indigo-700 transition">
+                Semua
+            </a>
+            @foreach($categories as $category)
+            <a href="{{ url('/katalog?category=' . $category->slug) }}" 
+               class="px-5 py-2 bg-white border-2 border-slate-200 text-slate-700 rounded-full text-sm font-bold hover:border-indigo-600 hover:text-indigo-600 transition">
+                {{ $category->name }}
+            </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Event 1 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-5 text-white">
-                <div class="text-4xl mb-2">💻</div>
-                <h3 class="text-2xl font-bold">Workshop Laravel 11</h3>
-                <p class="text-blue-100 text-sm">Teknologi & Programming</p>
+        @forelse($events as $event)
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden card-hover transition-all duration-300 hover:shadow-xl">
+            <div class="relative">
+                <img src="{{ ($event->poster_path && \Storage::disk('public')->exists($event->poster_path))
+                    ? asset('storage/' . $event->poster_path)
+                    : 'https://placehold.co/400x250/e2e8f0/64748b?text=' . urlencode($event->title) }}"
+                     alt="{{ $event->title }}" class="w-full h-48 object-cover">
+                @if($event->stock <= 0)
+                <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <span class="bg-red-500 text-white px-4 py-2 rounded-xl font-bold text-sm">HABIS</span>
+                </div>
+                @endif
             </div>
             <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>15 Desember 2024</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Ruang Seminar Amikom Lt.3</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>Kapasitas: 100 Peserta</strong></p>
+                <div class="mb-3">
+                    @if($event->category)
+                    <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold uppercase tracking-wide">
+                        {{ $event->category->name }}
+                    </span>
+                    @endif
                 </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">✅ Tersedia</span>
-                    <span class="text-purple-600 font-bold">Gratis</span>
+                <h3 class="text-xl font-black text-slate-900 mb-2">{{ $event->title }}</h3>
+                <p class="text-slate-500 text-sm mb-4">{{ Str::limit($event->description, 80) }}</p>
+                <div class="space-y-2 mb-6">
+                    <p class="text-slate-600 flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v12a2 2 0 002 2z"></path></svg>
+                        {{ \Carbon\Carbon::parse($event->date)->format('d M Y, H:i') }}
+                    </p>
+                    <p class="text-slate-600 flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        {{ $event->location }}
+                    </p>
+                    <p class="text-slate-600 flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Sisa: <strong>{{ $event->stock }}</strong> tiket
+                    </p>
+                </div>
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                    <div>
+                        @if($event->price == 0)
+                            <span class="text-lg font-black text-green-600">GRATIS</span>
+                        @else
+                            <span class="text-lg font-black text-indigo-600">Rp {{ number_format($event->price, 0, ',', '.') }}</span>
+                        @endif
+                    </div>
+                    @if($event->stock > 0)
+                        <a href="{{ url('/checkout/' . $event->id) }}" class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition text-sm">
+                            Beli Tiket
+                        </a>
+                    @else
+                        <button disabled class="px-6 py-2.5 bg-slate-300 text-slate-500 rounded-xl font-bold cursor-not-allowed text-sm">
+                            Stok Habis
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
-
-        <!-- Event 2 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-purple-500 to-purple-600 p-5 text-white">
-                <div class="text-4xl mb-2">🤖</div>
-                <h3 class="text-2xl font-bold">Hackathon AI 2024</h3>
-                <p class="text-purple-100 text-sm">Kompetisi & Inovasi</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>20-22 Desember 2024</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Online & Offline (Hybrid)</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>Maksimal 50 Tim</strong></p>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-semibold">🟡 Pendaftaran Dibuka</span>
-                    <span class="text-purple-600 font-bold">Rp 50.000</span>
-                </div>
-            </div>
+        @empty
+        <div class="col-span-full text-center py-16">
+            <div class="text-6xl mb-4">📭</div>
+            <p class="text-slate-500 text-lg font-medium">Belum ada event tersedia saat ini.</p>
+            <p class="text-slate-400 text-sm mt-2">Silakan cek kembali nanti!</p>
         </div>
-
-        <!-- Event 3 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-pink-500 to-pink-600 p-5 text-white">
-                <div class="text-4xl mb-2">🎨</div>
-                <h3 class="text-2xl font-bold">UI/UX Design Competition</h3>
-                <p class="text-pink-100 text-sm">Desain & Kreativitas</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>10 Januari 2025</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Laboratorium Desain Amikom</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>75 Peserta</strong></p>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">✅ Tersedia</span>
-                    <span class="text-purple-600 font-bold">Rp 25.000</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Event 4 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-green-500 to-green-600 p-5 text-white">
-                <div class="text-4xl mb-2">🌐</div>
-                <h3 class="text-2xl font-bold">Seminar Digital Marketing</h3>
-                <p class="text-green-100 text-sm">Bisnis & Marketing</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>5 Januari 2025</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Auditorium Amikom</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>200 Peserta</strong></p>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">🔴 Hampir Penuh</span>
-                    <span class="text-purple-600 font-bold">Gratis</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Event 5 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-orange-500 to-orange-600 p-5 text-white">
-                <div class="text-4xl mb-2">🎮</div>
-                <h3 class="text-2xl font-bold">Game Development Bootcamp</h3>
-                <p class="text-orange-100 text-sm">Game & Multimedia</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>8-12 Januari 2025</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Lab Multimedia Amikom</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>40 Peserta</strong></p>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">✅ Tersedia</span>
-                    <span class="text-purple-600 font-bold">Rp 150.000</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Event 6 -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-hover card-shine">
-            <div class="bg-gradient-to-r from-red-500 to-red-600 p-5 text-white">
-                <div class="text-4xl mb-2">🏃</div>
-                <h3 class="text-2xl font-bold">Charity Fun Run 2025</h3>
-                <p class="text-red-100 text-sm">Olahraga & Sosial</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-2 mb-4">
-                    <p class="text-gray-600 flex items-center gap-2">📅 <strong>15 Januari 2025</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">📍 <strong>Kampus Amikom</strong></p>
-                    <p class="text-gray-600 flex items-center gap-2">👥 <strong>500 Peserta</strong></p>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">✅ Tersedia</span>
-                    <span class="text-purple-600 font-bold">Rp 75.000</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer informasi -->
-    <div class="text-center mt-12 p-6 bg-white/60 backdrop-blur-sm rounded-2xl border border-white/30 shadow-sm">
-        <p class="text-gray-600">⭐ Menampilkan 6 dari 12 event yang tersedia</p>
-        <p class="text-gray-500 text-sm mt-2">*Masih banyak event menarik lainnya yang akan datang. Pantau terus website kami!</p>
+        @endforelse
     </div>
 </div>
-
-</body>
-</html>
+@endsection

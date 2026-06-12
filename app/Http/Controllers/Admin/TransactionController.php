@@ -26,4 +26,11 @@ class TransactionController extends Controller
 
         return view('admin.transactions', compact('transactions', 'search'));
     }
+
+    public function destroy(Transaction $transaction)
+    {
+        $transaction->delete();
+
+        return redirect()->route('admin.transactions.index')->with('success', 'Transaksi berhasil dihapus.');
+    }
 }

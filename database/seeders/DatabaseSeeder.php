@@ -68,21 +68,18 @@ class DatabaseSeeder extends Seeder
 
         $events = \App\Models\Event::all();
 
-        // 4. TRANSAKSI
+        // 4. TRANSAKSI (hanya 1 data seperti modul)
         $firstEvent = $events->first();
         if ($firstEvent) {
             \App\Models\Transaction::updateOrCreate(
-                ['order_id' => 'ORD-' . strtoupper(\Illuminate\Support\Str::random(8))],
+                ['order_id' => 'TRX-1234567890-ABC12'],
                 [
                     'event_id' => $firstEvent->id,
                     'customer_name' => 'Donni Prabowo',
                     'customer_email' => 'donni@example.com',
                     'customer_phone' => '081234567890',
                     'total_price' => 155000,
-                    'status' => 'Success',
-                    'snap_token' => null,
-                    'created_at' => now()->subDays(rand(1, 30)),
-                    'updated_at' => now()->subDays(rand(1, 30)),
+                    'status' => 'Pending',
                 ]
             );
         }
