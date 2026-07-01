@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
-use App\Http\Controllers\Admin\PartnerController; // ✅ Perbaiki: hapus ::class
+ use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\AuthController;
 
 /*
@@ -28,7 +28,9 @@ Route::get('/event-detail', [EventController::class, 'show']);
 Route::get('/checkout', [EventController::class, 'checkout']);
 Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/checkout/success/{transaction}', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/ticket', [TicketController::class, 'show']);
 
 // Halaman Informasi Statis
