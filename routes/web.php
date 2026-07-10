@@ -13,7 +13,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
- use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Http\Controllers\Admin\AuthController;
 
 /*
@@ -84,3 +84,5 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     });
 
 });
+
+Route::post('/midtrans/callback', [\App\Http\Controllers\MidtransWebhookController::class, 'handle']);

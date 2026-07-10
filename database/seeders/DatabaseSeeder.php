@@ -79,7 +79,7 @@ class DatabaseSeeder extends Seeder
                     'customer_email' => 'donni@example.com',
                     'customer_phone' => '081234567890',
                     'total_price' => 155000,
-                    'status' => 'Pending',
+                    'status' => 'success',
                 ]
             );
         }
