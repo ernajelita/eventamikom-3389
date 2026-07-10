@@ -31,7 +31,7 @@ Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('ch
 Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
 Route::get('/checkout/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
 Route::get('/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
-Route::get('/ticket', [TicketController::class, 'show']);
+Route::get('/ticket/{order_id}', [TicketController::class, 'show'])->name('ticket.show');
 
 // Halaman Informasi Statis
 Route::get('/tentang', function () {

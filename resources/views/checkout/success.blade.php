@@ -10,10 +10,14 @@
         </div>
         <h2 class="text-3xl font-black mb-4">Terima Kasih!</h2>
         <p class="text-slate-500 mb-8 leading-relaxed">
-            Pembayaran untuk pesanan <strong>{{ $transaction->order_id }}</strong> sedang diproses atau telah berhasil. 
-            E-Ticket akan dikirim ke email Anda (<strong>{{ $transaction->customer_email }}</strong>) setelah pembayaran terkonfirmasi lunas.
+            Pembayaran untuk pesanan <strong>{{ $transaction->order_id }}</strong> telah berhasil. 
+            E-Ticket telah dikirim ke email Anda (<strong>{{ $transaction->customer_email }}</strong>).
         </p>
-        <a href="{{ route('home') }}" class="inline-block px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition">
+        <a href="{{ route('ticket.show', $transaction->order_id) }}" class="inline-block px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition mb-4">
+            Lihat E-Ticket
+        </a>
+        <br>
+        <a href="{{ route('home') }}" class="inline-block px-8 py-4 bg-white text-indigo-600 border border-indigo-200 rounded-xl font-bold hover:bg-indigo-50 transition">
             Kembali ke Beranda
         </a>
     </div>

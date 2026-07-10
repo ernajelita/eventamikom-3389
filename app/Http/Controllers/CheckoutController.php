@@ -42,7 +42,7 @@ class CheckoutController extends Controller
             'customer_email'  => $request->customer_email,
             'customer_phone'  => $request->customer_phone,
             'total_price'     => $totalPrice,
-            'status'          => 'success',
+            'status'          => 'pending',
         ]);
 
         // --- INTEGRASI SNAP MIDTRANS ---
@@ -94,27 +94,43 @@ class CheckoutController extends Controller
     // Halaman sukses – verifikasi status pembayaran dari Midtrans
     public function success($order_id)
     {
-        // Mengambil daftar kategori untuk keperluan menu footer
         $categories = \App\Models\Category::all();
 
-        $transaction = Transaction::where('order_id', $order_id)->firstOrFail();
-        
-        // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
+        $transaction = Transaction::with('event')->where('order_id', $order_id)->firstOrFail();
+
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         \Midtrans\Config::$isProduction = false;
-        
+        \Midtrans\Config::$isSanitized = true;
+        \Midtrans\Config::$is3ds = true;
+
         try {
-            $midtransStatus = \Midtrans\Transaction::status($order_id);
-            
-            // Hanya ubah status menjadi sukses jika Midtrans mengonfirmasi pembayaran lunas
-            if (in_array($midtransStatus->transaction_status, ['capture', 'settlement'])) {
-                $transaction->update(['status' => 'success']);
+            $status = \Midtrans\Transaction::status($order_id);
+
+            if ($status) {
+                $trx_status = is_array($status) ? ($status['transaction_status'] ?? '') : ($status->transaction_status ?? '');
+
+                if (in_array($trx_status, ['settlement', 'capture'])) {
+                    if (strtolower($transaction->status) === 'pending') {
+                        $transaction->update(['status' => 'success']);
+
+                        if ($transaction->event && $transaction->event->stock > 0) {
+                            $transaction->event->stock = $transaction->event->stock - 1;
+                            $transaction->event->save();
+
+                            try {
+                                \Illuminate\Support\Facades\Mail::to($transaction->customer_email)
+                                    ->send(new \App\Mail\EventTicketMail($transaction));
+                            } catch (\Exception $e) {
+                                \Log::error('Gagal mengirim email E-Ticket secara manual (Bypass): ' . $e->getMessage());
+                            }
+                        }
+                    }
+                }
             }
         } catch (\Exception $e) {
-            // Jika error (transaksi tidak ada di Midtrans, koneksi terputus), kembalikan ke beranda
             return redirect()->route('home')->with('error', 'Transaksi tidak ditemukan atau gagal diproses oleh sistem pembayaran.');
         }
 
-        return view('checkout.success', compact('transaction','categories'));
+        return view('checkout.success', compact('transaction', 'categories'));
     }
 }
